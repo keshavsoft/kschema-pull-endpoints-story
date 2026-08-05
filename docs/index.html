@@ -449,6 +449,7 @@
                 <a href="example.html">Demo</a>
                 <a href="kschema-pull-endpoints.html">Pull Endpoints</a>
                 <a href="pattern-collector-anyjs-story.html">Pattern Collector</a>
+                <a href="dev-dependencies.html">Dev Deps</a>
                 <a href="https://github.com/keshavsoft/kschema-pull-endpoints-story/blob/main/README.md" target="_blank">README</a>
                 <a href="https://github.com/keshavsoft/kschema-pull-endpoints-story/blob/main/dev.md" target="_blank">Dev Guide</a>
             </div>
@@ -492,7 +493,7 @@
                 <div class="feature-card">
                     <span class="feature-icon">📦</span>
                     <h3>Dynamic Versioning</h3>
-                    <p>Under the hood, scans the executable registry to run the latest runtime runner (currently <code>v3</code>) seamlessly.</p>
+                    <p>Under the hood, scans the executable registry to run the latest runtime runner (currently <code>v4</code>) seamlessly.</p>
                 </div>
 
                 <div class="feature-card">
@@ -510,12 +511,12 @@
         </div>
     </section>
 
-    <!-- Story/Quest (v3) Section -->
+    <!-- Story/Quest (v4) Section -->
     <section id="story">
         <div class="container">
             <div class="section-header">
-                <h2>The v3 Code Story</h2>
-                <p>In version 3, our logic represents a scout quest that collects and parses routing gems:</p>
+                <h2>The v4 Code Story</h2>
+                <p>In version 4, our logic represents a scout quest that collects and parses routing gems:</p>
             </div>
 
             <div class="story-container">
@@ -531,18 +532,18 @@
                 <div class="story-step">
                     <div class="story-icon-wrapper">🕵️</div>
                     <div class="story-content">
-                        <h3>2. The Scout</h3>
+                        <h3>2. The Scout Helper</h3>
                         <p>Leverages <code>kschema-pull-endpoints</code> to locate the absolute paths of all target route configurations.</p>
-                        <span class="story-file">kschema-pull-endpoints</span>
+                        <span class="story-file">bin/v4/adventure/scout.js</span>
                     </div>
                 </div>
 
                 <div class="story-step">
                     <div class="story-icon-wrapper">📖</div>
                     <div class="story-content">
-                        <h3>3. The Parser</h3>
+                        <h3>3. The Parser Helper</h3>
                         <p>Uses <code>pattern-collector-anyjs-story</code> to parse route file contents and compile code story metadata.</p>
-                        <span class="story-file">bin/v3/index.js</span>
+                        <span class="story-file">bin/v4/adventure/parser.js</span>
                     </div>
                 </div>
             </div>
