@@ -8,8 +8,9 @@ const appJsPath = path.join(__dirname, "api");
 import defaultFunc from '../../index.js';
 
 const endPointsWithStory = defaultFunc({
-    toPath: appJsPath
+    toPath: appJsPath,
+    inTargetPath: __dirname
 });
 
-console.log("ssssssssss : ",__dirname);
-// console.log(JSON.stringify(endPointsWithStory[0], null, 4));
+// console.log("ssssssssss------ : ", __dirname);
+console.log(JSON.stringify(endPointsWithStory[0], null, 4));
