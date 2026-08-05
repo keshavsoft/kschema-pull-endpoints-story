@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Example & Results — kschema-pull-endpoints-story</title>
+    
+    <!-- Google Fonts: Inter & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-primary: #090d16;
+            --bg-secondary: rgba(17, 24, 39, 0.75);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            
+            /* Curated brand colors */
+            --gradient-accent: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+            --cyan-accent: #38bdf8;
+            --emerald-accent: #10b981;
+            --purple-accent: #c084fc;
+            --red-accent: #ef4444;
+            
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(129, 140, 248, 0.05) 0%, transparent 40%);
+        }
+
+        /* Container */
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Navigation Bar */
+        nav {
+            padding: 24px 0;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(9, 13, 22, 0.8);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1.5rem;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-left: 28px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: var(--transition-smooth);
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: #38bdf8;
+        }
+
+        /* Header Intro */
+        .page-header {
+            padding: 60px 0 40px 0;
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+            background: linear-gradient(to right, #fff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .page-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Simulator Grid */
+        .showcase-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 30px;
+            margin-bottom: 80px;
+        }
+
+        @media (max-width: 992px) {
+            .showcase-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Panel Standard Card */
+        .showcase-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 0 10px 35px rgba(0,0,0,0.3);
+        }
+
+        .card-title-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Interactive Folder Explorer */
+        .explorer-tree {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255,255,255,0.03);
+            border-radius: 12px;
+            padding: 20px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            color: #cbd5e1;
+            user-select: none;
+            flex-grow: 1;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+
+        .tree-node {
+            margin-left: 20px;
+            position: relative;
+            padding: 4px 0;
+            border-left: 1px dashed rgba(255,255,255,0.08);
+            padding-left: 14px;
+        }
+
+        .tree-node.root-node {
+            margin-left: 0;
+            border-left: none;
+            padding-left: 0;
+        }
+
+        .node-name {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition-smooth);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .node-name.active-scan {
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--cyan-accent);
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+            transform: scale(1.02);
+        }
+
+        .node-name.target-gem {
+            color: var(--emerald-accent);
+            font-weight: 600;
+        }
+
+        .node-name.target-gem.glow-found {
+            animation: gemGlow 1.5s infinite alternate ease-in-out;
+        }
+
+        @keyframes gemGlow {
+            0% {
+                background: rgba(16, 185, 129, 0.05);
+                box-shadow: 0 0 0 rgba(16, 185, 129, 0);
+            }
+            100% {
+                background: rgba(16, 185, 129, 0.25);
+                box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+            }
+        }
+
+        /* Code & Result panels */
+        .panel-header {
+            background: rgba(30, 41, 59, 0.4);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 20px;
+            border-radius: 12px 12px 0 0;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-body {
+            background: #070b13;
+            border: 1px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            padding: 20px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        /* Code block stylings */
+        .keyword { color: #f472b6; }
+        .string { color: #34d399; }
+        .comment { color: #64748b; font-style: italic; }
+        .function { color: #60a5fa; }
+        .variable { color: #fbbf24; }
+
+        /* Simulator controls */
+        .sim-controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .sim-btn {
+            background: var(--gradient-accent);
+            color: #090d16;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition-smooth);
+        }
+
+        .sim-btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
+        }
+
+        .sim-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .sim-status {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #64748b;
+        }
+
+        .status-dot.active {
+            background: var(--cyan-accent);
+            animation: pulseScan 1s infinite alternate;
+        }
+
+        .status-dot.finished {
+            background: var(--emerald-accent);
+        }
+
+        @keyframes pulseScan {
+            0% { opacity: 0.4; }
+            100% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* Result display list */
+        .result-paths {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .result-path-item {
+            background: rgba(16, 185, 129, 0.05);
+            border: 1px solid rgba(16, 185, 129, 0.1);
+            color: var(--emerald-accent);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.4s ease-out;
+        }
+
+        .result-path-item.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .badge-found {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--emerald-accent);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Copy JSON output overlay button */
+        .copy-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .copy-btn:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(56, 189, 248, 0.5);
+        }
+
+        /* Footer */
+        footer {
+            padding: 60px 0;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        footer p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        footer a {
+            color: #38bdf8;
+            text-decoration: none;
+            transition: var(--transition-smooth);
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Toast styling */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #10b981;
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">JSON output copied to clipboard!</div>
+
+    <!-- Navigation Bar -->
+    <nav>
+        <div class="container nav-container">
+            <a href="index.html" class="logo">kschema-pull-endpoints-story</a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="index.html#features">Features</a>
+                <a href="example.html" class="active">Example & Results</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="page-header">
+        <div class="container">
+            <h1>Dynamic Story Scouting Simulation</h1>
+            <p>
+                Watch the recursive scout inspect folder trees and extract the endpoint route stories in real time.
+            </p>
+        </div>
+    </header>
+
+    <!-- Interactive Simulation Section -->
+    <section>
+        <div class="container">
+            <div class="showcase-grid">
+                
+                <!-- Left Panel: Workspace Explorer -->
+                <div class="showcase-card">
+                    <div class="card-title-group">
+                        <div class="card-title">📁 Workspace Explorer</div>
+                        <div class="sim-status">
+                            <span id="status-dot" class="status-dot"></span>
+                            <span id="status-text">Idle</span>
+                        </div>
+                    </div>
+                    
+                    <p style="font-size: 0.9rem; color: var(--text-secondary);">
+                        The scout searches directories recursively, filtering for files named <strong><code>end-points.js</code></strong>.
+                    </p>
+
+                    <!-- Explorer Tree Structure -->
+                    <div class="explorer-tree">
+                        <div class="tree-node root-node">
+                            <span id="node-root" class="node-name">📂 test/v3/api</span>
+                            
+                            <div class="tree-node">
+                                <span id="node-v1" class="node-name">📂 v1</span>
+                                
+                                <div class="tree-node">
+                                    <span id="node-bills" class="node-name">📂 bills</span>
+                                    <div class="tree-node">
+                                        <span id="node-bills-ep" class="node-name target-gem">📄 end-points.js</span>
+                                    </div>
+                                    <div class="tree-node">
+                                        <span id="node-bills-config" class="node-name">📂 Config</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="tree-node">
+                                    <span id="node-doctors" class="node-name">📂 doctors</span>
+                                    <div class="tree-node">
+                                        <span id="node-doctors-ep" class="node-name target-gem">📄 end-points.js</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="tree-node">
+                                    <span id="node-v1-routes" class="node-name">📄 routes.js</span>
+                                </div>
+
+                                <div class="tree-node">
+                                    <span id="node-tests" class="node-name">📂 tests</span>
+                                    <div class="tree-node">
+                                        <span id="node-tests-ep" class="node-name target-gem">📄 end-points.js</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="tree-node">
+                                <span id="node-root-routes" class="node-name">📄 routes.js</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Simulator Controls -->
+                    <div class="sim-controls">
+                        <button id="btn-scout" class="sim-btn" onclick="startScoutSimulation()">
+                            🔍 Run Scout Simulation
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right Panel: Code & Results -->
+                <div class="showcase-card" style="gap: 24px;">
+                    <div>
+                        <div class="panel-header">
+                            <span>💻 JavaScript Usage</span>
+                            <span style="font-size: 0.75rem; color: #818cf8;">ES Module</span>
+                        </div>
+                        <div class="panel-body">
+<span class="keyword">import</span> <span class="variable">collectStory</span> <span class="keyword">from</span> <span class="string">"kschema-pull-endpoints-story"</span>;
+
+<span class="keyword">const</span> <span class="variable">endpoints</span> = <span class="function">collectStory</span>({
+    <span class="variable">toPath</span>: <span class="string">"test/v3/api"</span>,
+    <span class="variable">inTargetPath</span>: <span class="string">"test/v3"</span>
+});
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="panel-header">
+                            <span>📊 Discovered Endpoint Output (JSON)</span>
+                            <button class="copy-btn" onclick="copyJsonOutput()">Copy JSON</button>
+                        </div>
+                        <div class="panel-body" style="background: #05080e;">
+                            <pre id="json-console" style="color: var(--text-secondary); margin-bottom: 12px; font-size: 0.85rem;">// Run the scout simulation to generate path output...</pre>
+                            
+                            <div id="results-container" class="result-paths"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>Made with ❤️ by <a href="https://cli.keshavsoft.com" target="_blank">KeshavSoft</a></p>
+        </div>
+    </footer>
+
+    <!-- Interactive script logic -->
+    <script>
+        const nodes = [
+            { id: 'node-root', type: 'folder', text: 'Scanning root API directory...' },
+            { id: 'node-v1', type: 'folder', text: 'Checking v1 folder...' },
+            { id: 'node-bills', type: 'folder', text: 'Searching bills module...' },
+            { 
+                id: 'node-bills-ep', 
+                type: 'endpoint', 
+                text: 'Found and parsed bills story!', 
+                data: {
+                    fullPath: "/workspace/test/v3/api/v1/bills/end-points.js",
+                    trimmedPath: "/api/v1/bills/end-points.js",
+                    story: {
+                        story: {
+                            express: { import: ["npm.firstLineIndex"], consumption: ["useLines.firstLineIndex"] },
+                            funcFromdel: { import: ["importLines.firstLineIndex"], consumption: ["useLines.firstLineIndex"] }
+                        }
+                    }
+                }
+            },
+            { id: 'node-bills-config', type: 'folder', text: 'Scanning bills config directory...' },
+            { id: 'node-doctors', type: 'folder', text: 'Searching doctors module...' },
+            { 
+                id: 'node-doctors-ep', 
+                type: 'endpoint', 
+                text: 'Found and parsed doctors story!', 
+                data: {
+                    fullPath: "/workspace/test/v3/api/v1/doctors/end-points.js",
+                    trimmedPath: "/api/v1/doctors/end-points.js",
+                    story: {
+                        story: {
+                            express: { import: ["npm.firstLineIndex"] },
+                            funcFromshowAll: { import: ["importLines.firstLineIndex"], consumption: ["useLines.firstLineIndex"] }
+                        }
+                    }
+                }
+            },
+            { id: 'node-v1-routes', type: 'file', text: 'Checking file routes.js (ignored)' },
+            { id: 'node-tests', type: 'folder', text: 'Searching tests module...' },
+            { 
+                id: 'node-tests-ep', 
+                type: 'endpoint', 
+                text: 'Found and parsed tests story!', 
+                data: {
+                    fullPath: "/workspace/test/v3/api/v1/tests/end-points.js",
+                    trimmedPath: "/api/v1/tests/end-points.js",
+                    story: {
+                        story: {
+                            express: { import: ["npm.firstLineIndex"] },
+                            funcFrominsertWithMeta: { import: ["importLines.firstLineIndex"], consumption: ["useLines.firstLineIndex"] }
+                        }
+                    }
+                }
+            },
+            { id: 'node-root-routes', type: 'file', text: 'Checking file routes.js (ignored)' }
+        ];
+
+        let isRunning = false;
+        let foundPaths = [];
+
+        function startScoutSimulation() {
+            if (isRunning) return;
+            isRunning = true;
+            foundPaths = [];
+            
+            // UI elements
+            const btn = document.getElementById('btn-scout');
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            const jsonConsole = document.getElementById('json-console');
+            const resultsContainer = document.getElementById('results-container');
+            
+            btn.disabled = true;
+            statusDot.className = 'status-dot active';
+            resultsContainer.innerHTML = '';
+            
+            // Clean up old classes
+            nodes.forEach(node => {
+                const el = document.getElementById(node.id);
+                if (el) {
+                    el.classList.remove('active-scan', 'glow-found');
+                }
+            });
+
+            let index = 0;
+            
+            function scanStep() {
+                if (index > 0) {
+                    const prevNode = document.getElementById(nodes[index - 1].id);
+                    if (prevNode) prevNode.classList.remove('active-scan');
+                }
+                
+                if (index < nodes.length) {
+                    const node = nodes[index];
+                    const el = document.getElementById(node.id);
+                    statusText.innerText = node.text;
+                    
+                    if (el) {
+                        el.classList.add('active-scan');
+                        
+                        // If it's an endpoint file, add to results
+                        if (node.type === 'endpoint') {
+                            el.classList.add('glow-found');
+                            foundPaths.push(node.data);
+                            
+                            // Visual insertion
+                            const item = document.createElement('div');
+                            item.className = 'result-path-item';
+                            item.innerHTML = `<span>${node.data.trimmedPath}</span> <span class="badge-found">Parsed</span>`;
+                            resultsContainer.appendChild(item);
+                            
+                            // Trigger slide-up animation
+                            setTimeout(() => item.classList.add('show'), 50);
+                            
+                            // Console refresh
+                            jsonConsole.innerText = JSON.stringify(foundPaths, null, 4);
+                        }
+                    }
+                    
+                    index++;
+                    setTimeout(scanStep, 700);
+                } else {
+                    // Completed
+                    isRunning = false;
+                    btn.disabled = false;
+                    statusDot.className = 'status-dot finished';
+                    statusText.innerText = 'Scout complete!';
+                    
+                    if (index > 0) {
+                        const lastNode = document.getElementById(nodes[index - 1].id);
+                        if (lastNode) lastNode.classList.remove('active-scan');
+                    }
+                }
+            }
+            
+            scanStep();
+        }
+
+        function copyJsonOutput() {
+            const text = JSON.stringify(foundPaths.length ? foundPaths : [
+                {
+                    fullPath: "/workspace/test/v3/api/v1/bills/end-points.js",
+                    trimmedPath: "/api/v1/bills/end-points.js",
+                    story: {
+                        story: {
+                            express: { import: ["npm.firstLineIndex"], consumption: ["useLines.firstLineIndex"] },
+                            funcFromdel: { import: ["importLines.firstLineIndex"], consumption: ["useLines.firstLineIndex"] }
+                        }
+                    }
+                },
+                {
+                    fullPath: "/workspace/test/v3/api/v1/doctors/end-points.js",
+                    trimmedPath: "/api/v1/doctors/end-points.js",
+                    story: {
+                        story: {
+                            express: { import: ["npm.firstLineIndex"] },
+                            funcFromshowAll: { import: ["importLines.firstLineIndex"], consumption: ["useLines.firstLineIndex"] }
+                        }
+                    }
+                }
+            ], null, 4);
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = document.getElementById('toast');
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 2500);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+    </script>
+</body>
+
+</html>
