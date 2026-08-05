@@ -1,0 +1,34 @@
+name: NPM Registry Summary
+
+on:
+  workflow_run:
+    workflows: ["NPM Publish"]
+    types:
+      - completed
+  workflow_dispatch:
+
+jobs:
+  summary:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Get Package Info
+        run: |
+          PACKAGE_NAME=$(node --input-type=module -e "import fs from 'fs'; console.log(JSON.parse(fs.readFileSync('./package.json', 'utf-8')).name)")
+          LOCAL_VERSION=$(node --input-type=module -e "import fs from 'fs'; console.log(JSON.parse(fs.readFileSync('./package.json', 'utf-8')).version)")
+          
+          # Fetch registry version
+          NPM_VERSION=$(npm view $PACKAGE_NAME version 2>/dev/null || echo "not published")
+          
+          echo "### 📦 Package Registry Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Package Name:** \`$PACKAGE_NAME\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Local Version:** \`$LOCAL_VERSION\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **NPM Registry Version:** \`$NPM_VERSION\`" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "$LOCAL_VERSION" = "$NPM_VERSION" ]; then
+            echo "- **Status:** ✅ Up to date with npm registry" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **Status:** ⚠️ Local version ($LOCAL_VERSION) differs from NPM Registry ($NPM_VERSION)" >> $GITHUB_STEP_SUMMARY
+          fi
