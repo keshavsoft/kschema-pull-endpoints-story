@@ -1,29 +1,27 @@
-# kschema-pull-endpoints
+# kschema-pull-endpoints-story
 
-> Recursively scan your backend or UI directories to locate and collect routes and configuration files (`end-points.js`) dynamically.
+> Recursively scan your backend or UI directories to locate `end-points.js` configuration/route files, and parse their contents to gather their complete routing and code "stories".
 
-[![Documentation](https://img.shields.io/badge/docs-GitHub_Pages-blue)](https://keshavsoft.github.io/kschema-pull-endpoints/)
+[![Documentation](https://img.shields.io/badge/docs-GitHub_Pages-blue)](https://keshavsoft.github.io/kschema-pull-endpoints-story/)
 <br />
-[📖 View the Interactive Documentation and Scout Simulator](https://keshavsoft.github.io/kschema-pull-endpoints/)
 
-`kschema-pull-endpoints` is a lightweight, configuration-driven utility that scans a designated directory tree for endpoint JavaScript files (`end-points.js`) and returns their absolute paths. This is ideal for modular route registration, dynamic routing setups, and schema compilation in Express/Node.js microservices or monorepos.
+`kschema-pull-endpoints-story` is a lightweight programmatic utility that combines recursive path scanning with regex-based AST/pattern analysis. It locates all files named `end-points.js` within a target directory and extracts detailed metadata (stories) about how those endpoints are configured, imported, and consumed.
 
 ---
 
 ## Features
 
-- 🔍 **Automated Scouting**: Recursively searches the filesystem to locate all files named `end-points.js`.
-- 📦 **Dynamic Runtime Loader**: Scans the `bin/` folder and loads the latest engine version (currently `v6`) dynamically, ensuring backward compatibility.
-- 📖 **Story-Driven Codebase**: Employs clean naming conventions like "The Scout" (`scout.js`) to make logic readable and self-documenting.
-- ⚙️ **Action Isolation**: Currently processes standard route endpoints under the `"Crud"` action.
-- 🧪 **Version-Isolated Testing**: Includes dedicated test harnesses for each version (e.g. `test/v6`) to guarantee runtime reliability.
+- 🔍 **Automated Scanning**: Recursively discovers all `end-points.js` files using `kschema-pull-endpoints`.
+- 📖 **Story Extraction**: Parses code patterns inside each `end-points.js` file using `pattern-collector-anyjs-story` to build a metadata story.
+- 📦 **Dynamic Runtime Resolver**: Automatically detects and loads the latest engine version (currently `v3`) dynamically from the `bin/` directory.
+- 🧪 **Version-Isolated Testing**: Includes version-isolated test suites (e.g. `test/v3`) to guarantee backward compatibility and development safety.
 
 ---
 
 ## Installation
 
 ```bash
-npm install kschema-pull-endpoints
+npm install kschema-pull-endpoints-story
 ```
 
 ---
@@ -32,45 +30,118 @@ npm install kschema-pull-endpoints
 
 ### Programmatic API
 
-Import the utility and call it with your target folder path:
+Import the default function and call it with your target folder path (`toPath`) and reference base path (`inTargetPath`):
 
 ```javascript
-import loadEndpoints from "kschema-pull-endpoints";
+import collectEndpointsStory from "kschema-pull-endpoints-story";
 import path from "node:path";
+import { fileURLToPath } from "url";
 
-// Recursively find all endpoint files in your API directory
-const endpoints = loadEndpoints({
-    toPath: path.join(process.cwd(), "api", "v1"),
-    inAction: "Crud" // Optional: defaults to "Crud"
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Recursively find endpoints and build their code stories
+const results = collectEndpointsStory({
+    toPath: path.join(__dirname, "api"),
+    inTargetPath: __dirname
 });
 
-console.log(endpoints);
-/*
-Output:
-[
-  "/Users/username/project/api/v1/doctors/end-points.js",
-  "/Users/username/project/api/v1/bills/end-points.js",
-  "/Users/username/project/api/v1/tests/end-points.js"
-]
-*/
+console.log(JSON.stringify(results[0], null, 4));
 ```
 
-### Parameters
+### Sample Output Structure
+
+```json
+{
+    "fullPath": "D:\\KeshavSoftRepos\\5aug\\ks2\\kschema-pull-endpoints-story\\test\\v3\\api\\v1\\bills\\end-points.js",
+    "trimmedPath": "\\api\\v1\\bills\\end-points.js",
+    "story": {
+        "story": {
+            "express": {
+                "import": [
+                    "importLinesFromNpm.firstLineIndex",
+                    "importLinesFromNpm.lastLineIndex",
+                    "firstLineIndex"
+                ]
+            },
+            "funcFromdel": {
+                "import": [
+                    "importLines.firstLineIndex",
+                    "importLines.lastLineIndex",
+                    "firstLineIndex"
+                ],
+                "consumption": [
+                    "useLines.firstLineIndex",
+                    "variablesDeclareHereLines.lastLineIndex",
+                    "lastLineIndex"
+                ]
+            }
+        },
+        "variablesConnection": "funcFrom",
+        "reverseTemplates": {
+            "importNpmRegex": "import {0} from '{1}';",
+            "importRegex": "import {0} from './{1}/controller.js';",
+            "consumptionRegex": "router.get('/{1}', (req, res) => {0}({ req, res, inTablePath: tablePath }));"
+        },
+        "firstAndLastValues": {
+            "importLinesFromNpm": {
+                "firstLine": {
+                    "match": "import express from 'express';",
+                    "line": "import express from 'express';",
+                    "lineNumber": 1
+                },
+                "lastLine": {
+                    "match": "import express from 'express';",
+                    "line": "import express from 'express';",
+                    "lineNumber": 1
+                }
+            },
+            "importLines": {
+                "firstLine": {
+                    "match": "import funcFromdel from './del/controller.js';",
+                    "line": "import funcFromdel from './del/controller.js';",
+                    "lineNumber": 3
+                },
+                "lastLine": {
+                    "match": "import funcFromshowAll from './showAll/controller.js';",
+                    "line": "import funcFromshowAll from './showAll/controller.js';",
+                    "lineNumber": 6
+                }
+            }
+        },
+        "onlyIndexesValues": {
+            "importLinesFromNpm": {
+                "firstLineIndex": 1,
+                "lastLineIndex": 1
+            },
+            "importLines": {
+                "firstLineIndex": 3,
+                "lastLineIndex": 6
+            }
+        }
+    }
+}
+```
+
+---
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
 | `toPath` | `String` | *Required* | The absolute directory path to scan. |
-| `inAction` | `String` | `"Crud"` | The command action name (only `"Crud"` supported currently). |
+| `inTargetPath` | `String` | *Required* | The root target directory path used to trim absolute paths into relative ones (`trimmedPath`). |
 
 ---
 
-## Architecture & Under the Hood (v6)
+## Architecture & Internals
 
 This library uses a version-isolated runner architecture:
 
-1. **The Entry point** (`index.js`): Scans the `bin/` directory, detects the highest version folder (e.g. `bin/v6`), and imports its main engine.
-2. **The Chronicle** (`bin/v6/index.js`): Receives the input arguments, matches the action, and delegates the search.
-3. **The Scout** (`bin/v6/scout.js`): Uses recursive filesystem scanning (`node-fs-recursive`) to search the realm (`toPath`) and gather all target gems (`end-points.js`).
+1. **Root Entry** (`index.js`): Scans the `bin/` directory, detects the highest version folder (e.g. `bin/v3`), and imports its engine dynamically.
+2. **The Chronicle Engine** (`bin/v3/index.js`):
+   - Triggers `kschema-pull-endpoints` to scan the designated realm (`toPath`) and gather absolute file paths of `end-points.js`.
+   - Iterates through the paths, reads file content, and processes the text using `pattern-collector-anyjs-story`.
+   - Maps and returns the collection as a flat array of objects containing `fullPath`, `trimmedPath`, and `story`.
 
 ---
 
@@ -79,15 +150,15 @@ This library uses a version-isolated runner architecture:
 Clone the repository and install dependencies:
 
 ```bash
-git clone https://github.com/keshavsoft/kschema-pull-endpoints.git
-cd kschema-pull-endpoints
+git clone https://github.com/keshavsoft/kschema-pull-endpoints-story.git
+cd kschema-pull-endpoints-story
 npm install
 ```
 
-Run the validation suite for the latest version:
+Run the validation suite for the latest version (`v3`):
 
 ```bash
-node test/v6/test.js
+node test/v3/test.js
 ```
 
 ---
@@ -95,4 +166,3 @@ node test/v6/test.js
 ## License
 
 MIT
-

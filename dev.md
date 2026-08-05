@@ -1,17 +1,17 @@
 # Development Guide
 
-This document explains the internal architecture and development workflow of `kschema-pull-endpoints`.
+This document explains the internal architecture and development workflow of `kschema-pull-endpoints-story`.
 
 ---
 
 # Introduction
 
-`kschema-pull-endpoints` is a modular routing helper package. Its core purpose is recursively finding endpoint files (`end-points.js`) in a project workspace to allow automatic route initialization and registration.
+`kschema-pull-endpoints-story` is a modular metadata-collection package. Its core purpose is recursively finding endpoint files (`end-points.js`) in a project workspace, reading their code, and parsing their structure to collect route and logic stories.
 
 The architecture emphasizes:
 - **Version Isolation**: Multiple runtime engines can co-exist inside the codebase.
 - **Dynamic Loader**: The root entry point dynamically resolves and loads the latest engine.
-- **Story-Driven Code Layout**: Naming internal modules with intuitive roles (like "The Scout" for directory scanning).
+- **Dependency Integration**: Leverages `kschema-pull-endpoints` for scanning and `pattern-collector-anyjs-story` for story parsing.
 
 ---
 
@@ -22,55 +22,47 @@ bin/
  ├── core/
  │    ├── getLatestVersion.js
  │    └── loadRunner.js
- ├── v5/
- │    ├── adventure/
- │    │    ├── scout.js
- │    │    └── trimPaths.js
- │    ├── alterConfig.js
- │    ├── getAllJsons.js
- │    ├── getConfig.js
+ ├── v2/
  │    └── index.js
- └── v6/ (Active Version)
-      ├── index.js   (The Chronicle / Entry Router)
-      └── scout.js   (The Scout / Scanner)
+ └── v3/ (Active Version)
+      └── index.js
 
 index.js             (Root Entry point)
 
 test/
- ├── v5/
- └── v6/
+ ├── v1/
+ ├── v2/
+ └── v3/
 ```
 
 ---
 
 # High-Level Architecture
 
-The execution pipeline for a programmatic call to `kschema-pull-endpoints` works as follows:
+The execution pipeline for a programmatic call to `kschema-pull-endpoints-story` works as follows:
 
 ```text
 Programmatic API Call
         ↓
     index.js (Root)
         ↓  (Scans bin/ for highest v* directory with index.js)
-  bin/v6/index.js (Chronicle)
-        ↓  (Determines action, e.g. "Crud")
-  bin/v6/scout.js (Scout)
-        ↓  (Performs recursive search using node-fs-recursive)
-Returns list of absolute paths
+  bin/v3/index.js
+        ↓
+  1. Invokes kschema-pull-endpoints to locate all end-points.js
+  2. Reads each found file and parses its contents using pattern-collector-anyjs-story
+        ↓
+Returns flat array of endpoints with their respective path details and parsed stories
 ```
 
 ---
 
-# Engine Components (v6)
+# Engine Components (v3)
 
 ### 1. Root Entry (`index.js`)
 The root entry point scans all directories in `bin/` matching `/^v\d+$/` and sorts them to find the highest number. It then dynamically loads and exports the default function of the latest version's `index.js`.
 
-### 2. The Chronicle (`bin/v6/index.js`)
-Serves as the version entry point. It checks the configuration action parameter (`inAction`) and decides which module to call. Currently, `"Crud"` is supported, which invokes the Scout.
-
-### 3. The Scout (`bin/v6/scout.js`)
-Performs recursive filesystem searching. It utilizes the external library `node-fs-recursive` to scan the workspace and identify all files named `end-points.js`.
+### 2. The Chronicle Engine (`bin/v3/index.js`)
+Serves as the version entry point. It receives `toPath` and `inTargetPath` as parameters, searches for matching file paths via `kschema-pull-endpoints`, collects the story data for each file, and formats the output.
 
 ---
 
@@ -78,10 +70,9 @@ Performs recursive filesystem searching. It utilizes the external library `node-
 
 To introduce changes or release a new version format:
 
-1. **Create the New Version Directory**: Add a directory under `bin/` (e.g. `bin/v7`).
-2. **Implement `index.js`**: Create `index.js` as the main export of the folder.
-3. **Register Actions**: Create the action modules under your version directory.
-4. **Create a Test Harness**: Add a directory under `test/` (e.g. `test/v7`) matching the new runtime environment structure to ensure validation.
+1. **Create the New Version Directory**: Add a directory under `bin/` (e.g. `bin/v4`).
+2. **Implement `index.js`**: Create `index.js` as the main export of the folder with the updated logic.
+3. **Create a Test Harness**: Add a directory under `test/` (e.g. `test/v4`) matching the new runtime environment structure to validate your changes.
 
 The dynamic resolver in the root `index.js` will automatically pick up and execute the new version as soon as it is created.
 
@@ -89,8 +80,8 @@ The dynamic resolver in the root `index.js` will automatically pick up and execu
 
 # Local Testing
 
-Run verification tests for the active engine (`v6`) from the project root:
+Run verification tests for the active engine (`v3`) from the project root:
 
 ```bash
-node test/v6/test.js
+node test/v3/test.js
 ```

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Example & Results — kschema-pull-endpoints</title>
+    <title>Example & Results — kschema-pull-endpoints-story</title>
     
     <!-- Google Fonts: Inter & Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -428,7 +428,7 @@
     <!-- Navigation Bar -->
     <nav>
         <div class="container nav-container">
-            <a href="index.html" class="logo">kschema-pull-endpoints</a>
+            <a href="index.html" class="logo">kschema-pull-endpoints-story</a>
             <div class="nav-links">
                 <a href="index.html">Home</a>
                 <a href="index.html#features">Features</a>
@@ -440,9 +440,9 @@
     <!-- Header -->
     <header class="page-header">
         <div class="container">
-            <h1>Dynamic Scouting Simulation</h1>
+            <h1>Dynamic Story Scouting Simulation</h1>
             <p>
-                Watch the recursive scout inspect folder trees and aggregate the endpoint registration paths in real time.
+                Watch the recursive scout inspect folder trees and extract the endpoint route stories in real time.
             </p>
         </div>
     </header>
@@ -469,7 +469,7 @@
                     <!-- Explorer Tree Structure -->
                     <div class="explorer-tree">
                         <div class="tree-node root-node">
-                            <span id="node-root" class="node-name">📂 test/v6/api</span>
+                            <span id="node-root" class="node-name">📂 test/v3/api</span>
                             
                             <div class="tree-node">
                                 <span id="node-v1" class="node-name">📂 v1</span>
@@ -525,10 +525,11 @@
                             <span style="font-size: 0.75rem; color: #818cf8;">ES Module</span>
                         </div>
                         <div class="panel-body">
-<span class="keyword">import</span> <span class="variable">loadEndpoints</span> <span class="keyword">from</span> <span class="string">"kschema-pull-endpoints"</span>;
+<span class="keyword">import</span> <span class="variable">collectStory</span> <span class="keyword">from</span> <span class="string">"kschema-pull-endpoints-story"</span>;
 
-<span class="keyword">const</span> <span class="variable">endpoints</span> = <span class="function">loadEndpoints</span>({
-    <span class="variable">toPath</span>: <span class="string">"test/v6/api"</span>
+<span class="keyword">const</span> <span class="variable">endpoints</span> = <span class="function">collectStory</span>({
+    <span class="variable">toPath</span>: <span class="string">"test/v3/api"</span>,
+    <span class="variable">inTargetPath</span>: <span class="string">"test/v3"</span>
 });
                         </div>
                     </div>
@@ -563,13 +564,55 @@
             { id: 'node-root', type: 'folder', text: 'Scanning root API directory...' },
             { id: 'node-v1', type: 'folder', text: 'Checking v1 folder...' },
             { id: 'node-bills', type: 'folder', text: 'Searching bills module...' },
-            { id: 'node-bills-ep', type: 'endpoint', text: 'Found matching route!', path: '/workspace/test/v6/api/v1/bills/end-points.js' },
+            { 
+                id: 'node-bills-ep', 
+                type: 'endpoint', 
+                text: 'Found and parsed bills story!', 
+                data: {
+                    fullPath: "/workspace/test/v3/api/v1/bills/end-points.js",
+                    trimmedPath: "/api/v1/bills/end-points.js",
+                    story: {
+                        story: {
+                            express: { import: ["npm.firstLineIndex"], consumption: ["useLines.firstLineIndex"] },
+                            funcFromdel: { import: ["importLines.firstLineIndex"], consumption: ["useLines.firstLineIndex"] }
+                        }
+                    }
+                }
+            },
             { id: 'node-bills-config', type: 'folder', text: 'Scanning bills config directory...' },
             { id: 'node-doctors', type: 'folder', text: 'Searching doctors module...' },
-            { id: 'node-doctors-ep', type: 'endpoint', text: 'Found matching route!', path: '/workspace/test/v6/api/v1/doctors/end-points.js' },
+            { 
+                id: 'node-doctors-ep', 
+                type: 'endpoint', 
+                text: 'Found and parsed doctors story!', 
+                data: {
+                    fullPath: "/workspace/test/v3/api/v1/doctors/end-points.js",
+                    trimmedPath: "/api/v1/doctors/end-points.js",
+                    story: {
+                        story: {
+                            express: { import: ["npm.firstLineIndex"] },
+                            funcFromshowAll: { import: ["importLines.firstLineIndex"], consumption: ["useLines.firstLineIndex"] }
+                        }
+                    }
+                }
+            },
             { id: 'node-v1-routes', type: 'file', text: 'Checking file routes.js (ignored)' },
             { id: 'node-tests', type: 'folder', text: 'Searching tests module...' },
-            { id: 'node-tests-ep', type: 'endpoint', text: 'Found matching route!', path: '/workspace/test/v6/api/v1/tests/end-points.js' },
+            { 
+                id: 'node-tests-ep', 
+                type: 'endpoint', 
+                text: 'Found and parsed tests story!', 
+                data: {
+                    fullPath: "/workspace/test/v3/api/v1/tests/end-points.js",
+                    trimmedPath: "/api/v1/tests/end-points.js",
+                    story: {
+                        story: {
+                            express: { import: ["npm.firstLineIndex"] },
+                            funcFrominsertWithMeta: { import: ["importLines.firstLineIndex"], consumption: ["useLines.firstLineIndex"] }
+                        }
+                    }
+                }
+            },
             { id: 'node-root-routes', type: 'file', text: 'Checking file routes.js (ignored)' }
         ];
 
@@ -619,12 +662,12 @@
                         // If it's an endpoint file, add to results
                         if (node.type === 'endpoint') {
                             el.classList.add('glow-found');
-                            foundPaths.push(node.path);
+                            foundPaths.push(node.data);
                             
                             // Visual insertion
                             const item = document.createElement('div');
                             item.className = 'result-path-item';
-                            item.innerHTML = `<span>${node.path}</span> <span class="badge-found">Found</span>`;
+                            item.innerHTML = `<span>${node.data.trimmedPath}</span> <span class="badge-found">Parsed</span>`;
                             resultsContainer.appendChild(item);
                             
                             // Trigger slide-up animation
@@ -656,9 +699,26 @@
 
         function copyJsonOutput() {
             const text = JSON.stringify(foundPaths.length ? foundPaths : [
-                "/workspace/test/v6/api/v1/bills/end-points.js",
-                "/workspace/test/v6/api/v1/doctors/end-points.js",
-                "/workspace/test/v6/api/v1/tests/end-points.js"
+                {
+                    fullPath: "/workspace/test/v3/api/v1/bills/end-points.js",
+                    trimmedPath: "/api/v1/bills/end-points.js",
+                    story: {
+                        story: {
+                            express: { import: ["npm.firstLineIndex"], consumption: ["useLines.firstLineIndex"] },
+                            funcFromdel: { import: ["importLines.firstLineIndex"], consumption: ["useLines.firstLineIndex"] }
+                        }
+                    }
+                },
+                {
+                    fullPath: "/workspace/test/v3/api/v1/doctors/end-points.js",
+                    trimmedPath: "/api/v1/doctors/end-points.js",
+                    story: {
+                        story: {
+                            express: { import: ["npm.firstLineIndex"] },
+                            funcFromshowAll: { import: ["importLines.firstLineIndex"], consumption: ["useLines.firstLineIndex"] }
+                        }
+                    }
+                }
             ], null, 4);
             
             navigator.clipboard.writeText(text).then(() => {
