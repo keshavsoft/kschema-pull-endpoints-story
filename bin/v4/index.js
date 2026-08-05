@@ -1,32 +1,9 @@
-import fs from 'fs';
-
-import pullEndPoints from "kschema-pull-endpoints";
-import getAnyJsStory from "pattern-collector-anyjs-story";
-
-const fileType = "fromEndPointsJs";
+import scout from "./adventure/scout.js";
+import parser from "./adventure/parser.js";
 
 const startFunc = ({ toPath, inTargetPath }) => {
-
-    const endPointsWithFullPath = pullEndPoints({
-        toPath
-    });
-
-    const endPointsWithStory = endPointsWithFullPath.map(element => {
-        const fileContent = fs.readFileSync(element, 'utf8');
-
-        const anyJsStory = getAnyJsStory({
-            fileContent,
-            fileType
-        });
-
-        return {
-            fullPath: element,
-            trimmedPath: element.replace(inTargetPath, ""),
-            story: anyJsStory
-        }
-    });
-
-
+    const paths = scout({ toPath });
+    const endPointsWithStory = parser({ paths, inTargetPath });
     return endPointsWithStory;
 };
 
