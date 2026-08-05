@@ -1,11 +1,16 @@
-import { scoutTheRealmForTargetJsons } from "./adventure/scout.js";
-import { transmuteGemsWithWisdom } from "./adventure/blacksmith.js";
+import { scoutTheRealmForTargetJsons } from "./scout.js";
 
-const startFunc = ({ toPath, sacredWisdom, inAction }) => {
+const fileNameToCompare = "end-points.js";
+
+const startFunc = ({ toPath, inAction = "Crud" }) => {
     switch (inAction) {
         case "Crud":
-            const hiddenGems = scoutTheRealmForTargetJsons(toPath);
-            transmuteGemsWithWisdom({ gems: hiddenGems, wisdom: sacredWisdom?.columnsConfig });
+            const hiddenGems = scoutTheRealmForTargetJsons({
+                realmPath: toPath,
+                inFileNameToCompare: fileNameToCompare
+            });
+
+            return hiddenGems;
             break;
         default:
             break;
