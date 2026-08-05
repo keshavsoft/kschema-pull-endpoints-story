@@ -1,0 +1,6 @@
+POST http://localhost:9012/api/v1/tests/insertWithMeta
+Content-Type: application/json
+
+{
+  "testName": ""
+}

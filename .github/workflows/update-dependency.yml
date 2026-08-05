@@ -1,0 +1,56 @@
+name: Update dependency
+
+on:
+  repository_dispatch:
+    types: [dependency-updated]
+
+permissions:
+  contents: write
+
+jobs:
+  update-dep:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.DISPATCH_TOKEN || secrets.REPO_DISPATCH_TOKEN || github.token }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Update dependency
+        run: |
+          PACKAGE_NAME="${{ github.event.client_payload.package }}"
+          if [ -n "$PACKAGE_NAME" ]; then
+            echo "Updating package: $PACKAGE_NAME"
+            npm install ${PACKAGE_NAME}@latest
+          else
+            echo "No package specified, updating default dependency node-fs-recursive..."
+            npm install node-fs-recursive@latest
+          fi
+
+      - name: Commit and push changes
+        run: |
+          # Check if there are changes
+          if git diff --quiet package.json package-lock.json; then
+            echo "No dependency changes detected."
+            exit 0
+          fi
+          
+          # Configure Git
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Commit the changes
+          git add package.json package-lock.json
+          git commit -m "chore(deps): update ${{ github.event.client_payload.package || 'node-fs-recursive' }} to latest [skip ci]"
+          
+          # Push directly to main
+          git push origin HEAD:main

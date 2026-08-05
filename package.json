@@ -1,0 +1,34 @@
+{
+  "name": "kschema-pull-endpoints-story",
+  "version": "1.2.1",
+  "description": "Recursively locate all end-points.js configuration and route files in a directory tree, and that file story also",
+  "keywords": [
+    "cli",
+    "scaffold",
+    "templates",
+    "node",
+    "project-generator"
+  ],
+  "dependencies": {
+    "kschema-pull-endpoints": "^1.6.1",
+    "pattern-collector-anyjs-story": "^1.23.2"
+  },
+  "type": "module",
+  "exports": {
+    ".": "./index.js"
+  },
+  "files": [
+    "bin/",
+    "index.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "homepage": "https://cli.keshavsoft.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/keshavsoft/kschema-pull-endpoints-story"
+  },
+  "bugs": {
+    "url": "https://github.com/keshavsoft/kschema-pull-endpoints-story/issues"
+  }
+}
